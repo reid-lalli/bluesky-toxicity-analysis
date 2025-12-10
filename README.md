@@ -165,11 +165,6 @@ MIT License - See LICENSE file for details
 - Oxy Swim & Dive team for always being there to support :)
 - Meiqing Zhang, Justin Li, and the Occidental Computer Science program for making this available
 
-## Data Availability
-
-Due to Bluesky's Terms of Service, raw post content is not shared. Aggregated daily statistics are available in our companion data repository:  
-- https://github.com/reid-lalli/bluesky-toxicity-data
-
 ---
 
 **Note:** This research analyzes public posts only and does not store personally identifiable information. All data collection complies with Bluesky's API terms and research ethics standards.
