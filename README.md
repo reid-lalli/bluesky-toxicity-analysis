@@ -5,7 +5,7 @@
 
 ## Overview
 
-This repository contains the code and analysis for studying the evolution of toxicity on Bluesky social media platform from its launch (February 6, 2024) through December 1, 2025. Our research examines how toxicity patterns develop over time and how they relate to platform growth.
+This repository contains the code and analysis for studying the evolution of toxicity on the BlueSky social media platform from its launch (February 6, 2024) through December 1, 2025. Our research examines how toxicity patterns develop over time and how they relate to platform growth.
 
 **Paper:** "The Evolution of Toxicity on Social Media: Analyzing Bluesky from its Inception"  
 **Authors:** Reid Lalli, Luke McAdams, Ethan Schoen (Occidental College)
@@ -29,16 +29,11 @@ This repository contains the code and analysis for studying the evolution of tox
 
 ```bash
 # Clone the repository
-git clone https://github.com/[your-username]/bluesky-toxicity-analysis.git
+git clone https://github.com/reid-lalli/bluesky-toxicity-analysis.git
 cd bluesky-toxicity-analysis
 
 # Install dependencies
 pip install -r requirements.txt
-
-# Set environment variables (optional, can also edit config in script)
-export BLUESKY_USERNAME="your_username.bsky.social"
-export BLUESKY_PASSWORD="your_password"
-export PERSPECTIVE_API_KEY="your_api_key"  # Optional for comparison analysis
 ```
 
 ## Usage
@@ -63,11 +58,14 @@ Edit the configuration section in `hackathon_playground_final.py`:
 ```python
 # Configuration
 OUTPUT_DIR = r'C:\Users\reide\Downloads'  # Change output directory
+USERNAME = 'sds-hackathon.bsky.social'    # Change BlueSky user
+PASSWORD = 'buq@AQT1jde0bux3gyr'
 START_DATE = datetime.date(2024, 2, 6)    # Platform launch
 END_DATE = datetime.date(2025, 12, 1)     # Analysis end date
-BATCH_SIZE = 64                            # Posts per ML batch
-MAX_WORKERS = 10                           # Parallel API workers
-ROLLING_WINDOW = 7                         # Days for smoothing trends
+BATCH_SIZE = 64                           # Posts per ML batch
+MAX_WORKERS = 10                          # Parallel API workers
+ROLLING_WINDOW = 7                        # Days for smoothing trends
+PERSPECTIVE_API_KEY = None                # Set your Perspective API key here if available
 ```
 
 ### Output Files
@@ -111,14 +109,7 @@ The script generates the following files in `OUTPUT_DIR`:
 ```
 bluesky-toxicity-analysis/
 ├── hackathon_playground_final.py   # Main analysis script
-├── requirements.txt                # Python dependencies
-├── README.md                       # This file
-├── bluesky_toxicity_paper.tex     # Research paper (LaTeX)
-├── references.bib                  # Bibliography
-└── outputs/                        # Generated visualizations (not tracked)
-    ├── *.png
-    ├── toxicity_results.csv
-    └── theoretical_framework.txt
+└── README.md                       # This file
 ```
 
 ## Research Questions
@@ -132,7 +123,7 @@ bluesky-toxicity-analysis/
 
 ## Key Findings
 
-[To be filled after analysis runs - add your specific results here]
+Our analysis reveals that toxicity on Bluesky exhibits event-driven spikes rather than steady growth over the platform’s first 665 days. The dramatic increases around the US Election (6.5%) and Inauguration (8.7%) suggest that external political events, rather than platform growth alone, are the primary drivers of toxic discourse.
 
 ## Dependencies
 
@@ -145,7 +136,7 @@ Core libraries:
 - `statsmodels` - Time series analysis
 - `scipy` / `scikit-learn` - Statistical tests
 
-See `requirements.txt` for complete list with versions.
+See `requirements.txt` for complete list.
 
 ## Contributing
 
@@ -163,15 +154,15 @@ MIT License - See LICENSE file for details
   title = {The Evolution of Toxicity on Social Media: Analyzing Bluesky from its Inception},
   year = {2025},
   institution = {Occidental College},
-  url = {https://github.com/[your-username]/bluesky-toxicity-analysis}
+  url = {https://github.com/reid-lalli/bluesky-toxicity-analysis}
 }
 ```
 
 ## Acknowledgments
 
-- Bluesky team for maintaining an open API
+- BlueSky team for maintaining an open API
 - Hugging Face for the `unitary/unbiased-toxic-roberta` model
-- Oxy Swim & Dive team for always being there to support me :)
+- Oxy Swim & Dive team for always being there to support :)
 - Meiqing Zhang, Justin Li, and the Occidental Computer Science program for making this available
 
 ## Data Availability
