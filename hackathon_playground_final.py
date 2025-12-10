@@ -10,8 +10,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import json
+import os
 import datetime
+import time
 import concurrent.futures
+from transformers import pipeline
+import torch
+from scipy import stats as scipy_stats
+from sklearn.metrics import confusion_matrix
+from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.graphics.tsaplots import plot_acf
+from statsmodels.stats.diagnostic import acorr_ljungbox
 from typing import List, Dict, Tuple, Optional
 import warnings
 warnings.filterwarnings('ignore')
@@ -26,9 +35,9 @@ except ImportError:
 # Configuration
 OUTPUT_DIR = r'C:\Users\reide\Downloads'
 USERNAME = 'sds-hackathon.bsky.social'
-PASSWORD = 'buq@AQT1jde0bux3gyr'  # WARNING: Use environment variables for credentials in production!
+PASSWORD = 'buq@AQT1jde0bux3gyr'
 START_DATE = datetime.date(2024, 2, 6)
-END_DATE = datetime.date(2025, 12, 1)  # Updated to 2025
+END_DATE = datetime.date(2025, 12, 1)
 BATCH_SIZE = 64
 MAX_WORKERS = 10
 ROLLING_WINDOW = 7  # 7-day rolling average for smoother trends
@@ -159,14 +168,12 @@ class BlueskyToxicityAnalyzer:
                 # Handle specific HTTP errors
                 if e.response.status_code in [502, 503, 504]:  # Bad Gateway, Service Unavailable, Gateway Timeout
                     if attempt < max_retries - 1:
-                        import time
                         time.sleep(retry_delay * (attempt + 1))  # Exponential backoff
                         continue
                     # Last attempt failed, return empty
                     return []
                 elif e.response.status_code == 429:  # Rate limited
                     if attempt < max_retries - 1:
-                        import time
                         time.sleep(retry_delay * 5)  # Longer wait for rate limit
                         continue
                     return []
@@ -272,8 +279,6 @@ class BlueskyToxicityAnalyzer:
         """Load the toxicity classification model"""
         try:
             print("\n🤖 Loading toxicity classification model...")
-            from transformers import pipeline
-            import torch
             
             device = 0 if torch.cuda.is_available() else -1
             device_name = 'GPU' if device == 0 else 'CPU'
@@ -378,9 +383,8 @@ class BlueskyToxicityAnalyzer:
             return
         
         # Statistical comparison
-        from scipy.stats import pearsonr, spearmanr
-        pearson_corr, pearson_p = pearsonr(df_compare['toxicity_score'], df_compare['perspective_score'])
-        spearman_corr, spearman_p = spearmanr(df_compare['toxicity_score'], df_compare['perspective_score'])
+        pearson_corr, pearson_p = scipy_stats.pearsonr(df_compare['toxicity_score'], df_compare['perspective_score'])
+        spearman_corr, spearman_p = scipy_stats.spearmanr(df_compare['toxicity_score'], df_compare['perspective_score'])
         
         print(f"\n--- Method Comparison Statistics ---")
         print(f"Pearson correlation: {pearson_corr:.4f} (p={pearson_p:.6f})")
@@ -434,7 +438,6 @@ class BlueskyToxicityAnalyzer:
         ax3.grid(alpha=0.3)
         
         # Confusion matrix
-        from sklearn.metrics import confusion_matrix
         cm = confusion_matrix(df_compare['roberta_toxic'], df_compare['perspective_toxic'])
         im = ax4.imshow(cm, cmap='Blues', aspect='auto')
         ax4.set_xticks([0, 1])
@@ -730,9 +733,6 @@ class BlueskyToxicityAnalyzer:
     def arima_analysis(self, df: pd.DataFrame):
         """Perform ARIMA modeling on aggregated trends"""
         try:
-            from statsmodels.tsa.arima.model import ARIMA
-            from scipy import stats as scipy_stats
-            
             print("\n📊 Performing ARIMA time series analysis...")
             
             # Prepare daily aggregated data
@@ -797,8 +797,7 @@ class BlueskyToxicityAnalyzer:
             # Overlay normal distribution
             mu, sigma = residuals.mean(), residuals.std()
             x = np.linspace(residuals.min(), residuals.max(), 100)
-            from scipy.stats import norm
-            ax3.plot(x, norm.pdf(x, mu, sigma), 'r-', linewidth=2, label='Normal Distribution')
+            ax3.plot(x, scipy_stats.norm.pdf(x, mu, sigma), 'r-', linewidth=2, label='Normal Distribution')
             ax3.set_title('Residuals Distribution', fontsize=12, fontweight='bold')
             ax3.set_xlabel('Residuals')
             ax3.set_ylabel('Density')
@@ -807,15 +806,13 @@ class BlueskyToxicityAnalyzer:
             
             # 4. ACF plot
             ax4 = fig.add_subplot(gs[2, 0])
-            from statsmodels.graphics.tsaplots import plot_acf
             plot_acf(residuals, lags=20, ax=ax4, alpha=0.05)
             ax4.set_title('Residual Autocorrelation Function (ACF)', fontsize=12, fontweight='bold')
             ax4.grid(alpha=0.3)
             
             # 5. Q-Q plot
             ax5 = fig.add_subplot(gs[2, 1])
-            from scipy.stats import probplot
-            probplot(residuals, dist="norm", plot=ax5)
+            scipy_stats.probplot(residuals, dist="norm", plot=ax5)
             ax5.set_title('Q-Q Plot', fontsize=12, fontweight='bold')
             ax5.grid(alpha=0.3)
             
@@ -830,7 +827,6 @@ class BlueskyToxicityAnalyzer:
             print(f"BIC: {fitted_model.bic:.2f}")
             
             # Ljung-Box test for residual autocorrelation
-            from statsmodels.stats.diagnostic import acorr_ljungbox
             lb_test = acorr_ljungbox(residuals, lags=[10], return_df=True)
             print(f"Ljung-Box test p-value: {lb_test['lb_pvalue'].values[0]:.4f}")
             if lb_test['lb_pvalue'].values[0] > 0.05:
@@ -877,13 +873,10 @@ class BlueskyToxicityAnalyzer:
             monthly_stats['user_growth_rate'] = monthly_stats['unique_users'].pct_change() * 100
             monthly_stats['volume_growth_rate'] = monthly_stats['post_count'].pct_change() * 100
             
-            # Correlation analysis
-            from scipy.stats import pearsonr
-            
             valid_data = monthly_stats.dropna()
             if len(valid_data) > 2:
-                corr_users, p_users = pearsonr(valid_data['unique_users'], valid_data['avg_toxicity'])
-                corr_volume, p_volume = pearsonr(valid_data['post_count'], valid_data['avg_toxicity'])
+                corr_users, p_users = scipy_stats.pearsonr(valid_data['unique_users'], valid_data['avg_toxicity'])
+                corr_volume, p_volume = scipy_stats.pearsonr(valid_data['post_count'], valid_data['avg_toxicity'])
                 
                 print(f"\n--- Growth vs Toxicity Correlation ---")
                 print(f"User growth correlation: {corr_users:.3f} (p={p_users:.4f})")
@@ -1021,8 +1014,7 @@ class BlueskyToxicityAnalyzer:
                     percent_change = ((event_toxicity - baseline_toxicity) / baseline_toxicity) * 100
                     
                     # Statistical test
-                    from scipy.stats import mannwhitneyu
-                    statistic, p_value = mannwhitneyu(baseline['toxicity_score'], 
+                    statistic, p_value = scipy_stats.mannwhitneyu(baseline['toxicity_score'], 
                                                      event_period['toxicity_score'],
                                                      alternative='two-sided')
                     
