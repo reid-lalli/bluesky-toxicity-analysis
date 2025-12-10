@@ -5,7 +5,7 @@
 
 ## Overview
 
-This repository contains the code and analysis for studying the evolution of toxicity on the BlueSky social media platform from its launch (February 6, 2024) through December 1, 2025. Our research examines how toxicity patterns develop over time and how they relate to platform growth.
+This repository contains the code and analysis for studying the evolution of toxicity on the Bluesky social media platform from its launch (February 6, 2024) through December 1, 2025. Our research examines how toxicity patterns develop over time and how they relate to platform growth.
 
 **Paper:** "The Evolution of Toxicity on Social Media: Analyzing Bluesky from its Inception"  
 **Authors:** Reid Lalli, Luke McAdams, Ethan Schoen (Occidental College)
@@ -58,7 +58,7 @@ Edit the configuration section in `hackathon_playground_final.py`:
 ```python
 # Configuration
 OUTPUT_DIR = r'C:\Users\reide\Downloads'  # Change output directory
-USERNAME = 'sds-hackathon.bsky.social'    # Change BlueSky user
+USERNAME = 'sds-hackathon.bsky.social'    # Change Bluesky user
 PASSWORD = 'buq@AQT1jde0bux3gyr'
 START_DATE = datetime.date(2024, 2, 6)    # Platform launch
 END_DATE = datetime.date(2025, 12, 1)     # Analysis end date
@@ -160,7 +160,7 @@ MIT License - See LICENSE file for details
 
 ## Acknowledgments
 
-- BlueSky team for maintaining an open API
+- Bluesky team for maintaining an open API
 - Hugging Face for the `unitary/unbiased-toxic-roberta` model
 - Oxy Swim & Dive team for always being there to support :)
 - Meiqing Zhang, Justin Li, and the Occidental Computer Science program for making this available
